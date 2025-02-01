@@ -1,0 +1,2 @@
+class GgException(Exception):
+    pass
