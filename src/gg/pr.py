@@ -1,5 +1,5 @@
 from .github import gh_repo
-from github import GithubException
+from github import GithubException, Github
 from .branch import Branch
 from .exception import GgException
 from .log import log
@@ -17,8 +17,8 @@ def pr_exists():
     return False
 
 
-def create_pr(_if_exists="noop", _if_noop="noop"):
-    rr = gh_repo()
+def create_pr(_if_exists="noop", _if_noop="noop", _gh: Github = None):
+    rr = _gh or gh_repo()
     b = Branch.active()
 
     if not b.parent():

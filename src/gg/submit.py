@@ -4,7 +4,7 @@ from .repo import repo
 from .pr import create_pr
 
 
-def submit(_force: bool = False):
+def submit(_force: bool = False, **kwargs):
     if _force:
         repo().git.push("origin", "HEAD", force=True)
     else:
@@ -15,7 +15,7 @@ def submit(_force: bool = False):
         _emoji=":ship:",
     )
     if Branch.active().name != "main":
-        create_pr()
+        create_pr(**kwargs)
 
 
 def checkout_and_submit(branch: Branch, _force: bool = False, **kwargs):

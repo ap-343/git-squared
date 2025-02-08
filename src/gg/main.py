@@ -10,6 +10,7 @@ from .confirm import confirm
 from .restack import restack as _restack
 from .submit import submit as _submit, checkout_and_submit
 import git
+from .github import gh_repo
 import subprocess
 import questionary
 
@@ -166,10 +167,11 @@ def submit_stack(*, _force: bool = False):
     Args:
         force: whether to force submit
     """
+    gh = gh_repo()
     with pad():
         traverse(
             Branch.from_head(repo().active_branch),
-            lambda b: checkout_and_submit(b, _force=_force),
+            lambda b: checkout_and_submit(b, _force=_force, _gh=gh),
         )
 
 
