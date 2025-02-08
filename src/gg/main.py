@@ -2,6 +2,7 @@
 import arguably
 from .log import log, pad
 from .branch import Branch, create_new_branch
+from .pr import create_pr
 from .repo import repo
 from .exception import GgException
 from .ls import draw_tree_2
@@ -12,8 +13,6 @@ from .submit import submit as _submit, checkout_and_submit
 import git
 import subprocess
 import questionary
-from github import Github
-from .github import github
 
 
 @arguably.command
@@ -37,7 +36,6 @@ def ls():
                     log(f"◦ {f}", _type="dim")
 
 
-# TEST - a
 @arguably.command
 def rm(name: str = None, *, y: bool = False):
     """
@@ -62,18 +60,6 @@ def rm(name: str = None, *, y: bool = False):
 
 
 @arguably.command
-def create(name):
-    """
-    Create a new branch tracking the current branch
-
-    Args:
-        name: the name of the branch to create
-    """
-    with pad():
-        create_new_branch(name)
-
-
-@arguably.command
 def go(name):
     """
     Go to a branch if it exists. Otherwise, create a new branch tracking the current branch.
@@ -91,15 +77,30 @@ def go(name):
             draw_tree_2(r, _print=True, _highlight=r.active_branch)
 
 
-@arguably.command
-def co(name):
+@arguably.command()
+def down():
     """
-    Alias for `go` (`co` is short for `checkout`)
+    Move down the stack from the current branch; ie, move to the parent branch
+    """
+    go(Branch.active().parent().name)
 
-    Args:
-        name: the name of the branch to go to
+
+@arguably.command()
+def up():
     """
-    go(name)
+    Move up the stack from the current branch; ie, move to the child branch
+    """
+    children = Branch.active().children()
+    if len(children) == 0:
+        log("Cannot go up! No child branches found")
+        return
+    elif len(children) == 1:
+        go(children[0].name)
+    else:
+        choice = questionary.select(
+            "Select a branch:", choices=[x.name for x in children]
+        ).ask()
+        go(choice)
 
 
 @arguably.command
@@ -109,14 +110,6 @@ def restack():
     """
     with pad():
         traverse(Branch.from_head(repo().active_branch), _restack)
-
-
-@arguably.command
-def r():
-    """
-    Alias for `restack`
-    """
-    restack()
 
 
 @arguably.command
@@ -155,44 +148,7 @@ def commit(*, _all: bool = False):
 
 
 @arguably.command()
-def c(*, _all: bool = False):
-    """
-    Alias for `commit`
-
-    Args:
-        all: whether to add all files before committing
-    """
-    commit(_all=_all)
-
-
-@arguably.command()
-def down():
-    """
-    Move down the tree from the current branch; ie, move to the parent branch
-    """
-    go(Branch.active().parent().name)
-
-
-@arguably.command()
-def up():
-    """
-    Move up the tree from the current branch; ie, move to the child branch
-    """
-    children = Branch.active().children()
-    if len(children) == 0:
-        log("Cannot go up! No child branches found")
-        return
-    elif len(children) == 1:
-        go(children[0].name)
-    else:
-        choice = questionary.select(
-            "Select a branch:", choices=[x.name for x in children]
-        ).ask()
-        go(choice)
-
-
-@arguably.command()
-def s(*, _force: bool = False):
+def submit(*, _force: bool = False):
     """
     Submit this branch to the remote (`s` stands for `submit`)
 
@@ -204,9 +160,9 @@ def s(*, _force: bool = False):
 
 
 @arguably.command()
-def ss(*, _force: bool = False):
+def submit_stack(*, _force: bool = False):
     """
-    Submit this branch and its children to the remote (`ss`stands for `submit stack`)
+    Submit this branch and its children to the remote
 
     Args:
         force: whether to force submit
@@ -237,7 +193,7 @@ def cs(*, _all: bool = False, _force: bool = False):
         force: whether to force submit
     """
     commit(_all=_all)
-    s(_force=_force)
+    submit(_force=_force)
 
 
 @arguably.command()
@@ -250,37 +206,69 @@ def css(*, _all: bool = False, _force: bool = False):
         force: [-f] whether to force submit
     """
     commit(_all=_all)
-    ss(_force=_force)
+    submit_stack(_force=_force)
 
 
 @arguably.command()
 def gh():
-    with github():
-        # Authenticate
-        g = Github()
+    create_pr()
 
-        # Get the repository
-        r = repo()
-        print(r.remotes.origin.url)
-        rr = g.get_repo(r.gh_path())
 
-        # Get all open pull requests
-        pull_requests = rr.get_pulls(state="open", base="main")
+@arguably.command
+def co(name):
+    """
+    Alias for `go` (`co` is short for `checkout`)
 
-        # Loop through the pull requests to check the head branch
-        for pr in pull_requests:
-            print(pr)
-            # if pr.head.ref == branch_name:
-            #     print(f"PR #{pr.number} matches branch {branch_name}: {pr.title}")
+    Args:
+        name: the name of the branch to go to
+    """
+    go(name)
 
-        # Create a pull request
-        # pr = repo.create_pull(
-        #     title="Fix issue with feature",
-        #     body="This PR addresses issue #123.",
-        #     head="feature-branch",  # The branch with the changes
-        #     base="main",  # The branch you want to merge into
-        # )
-        print(rr)
+
+@arguably.command
+def r():
+    """
+    Alias for `restack`
+    """
+    restack()
+
+
+@arguably.command()
+def c(*, _all: bool = False):
+    """
+    Alias for `commit`
+
+    Args:
+        all: whether to add all files before committing
+    """
+    commit(_all=_all)
+
+
+@arguably.command()
+def s(*, _force: bool = False):
+    """
+    Alias for `submit`
+
+    Args:
+        force: whether to force submit
+    """
+    with pad():
+        _submit(_force=_force)
+
+
+@arguably.command()
+def ss(*, _force: bool = False):
+    """
+    Alias for `submit-stack`
+
+    Args:
+        force: whether to force submit
+    """
+    with pad():
+        traverse(
+            Branch.from_head(repo().active_branch),
+            lambda b: checkout_and_submit(b, _force=_force),
+        )
 
 
 def main():

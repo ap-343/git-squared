@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from rich.prompt import Prompt
 
 
 @contextmanager
@@ -8,7 +9,7 @@ def confirm(prompt: str, _skip: bool = False):
         yield "y"
         return
 
-    response = input(f"{prompt} (y/n): ").strip().lower()
+    response = Prompt.ask(f"{prompt} (y/n): ").strip().lower()
     if response in ("y", "yes"):
         yield "y"
     else:

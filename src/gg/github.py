@@ -1,14 +1,14 @@
 from contextlib import contextmanager
 from .log import log
 from github import BadCredentialsException
+from .repo import repo
+from github import Github
 
 
 @contextmanager
 def github():
     try:
         yield
-    # except Exception as e:
-    #     print("EXCEPTION", type(e))
     except BadCredentialsException:
         log("""
 [bold]:guard: You are not authenticated with Github :guard:[/bold]
@@ -19,3 +19,10 @@ Run the command: [on #EEEEEE]gh auth login[/] to authenticate.
             
 Then try this operation again.
             """)
+
+
+def gh_repo():
+    with github():
+        r = repo()
+        g = Github()
+        return g.get_repo(r.gh_path())
