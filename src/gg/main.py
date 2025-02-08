@@ -2,7 +2,6 @@
 import arguably
 from .log import log, pad
 from .branch import Branch, create_new_branch
-from .pr import create_pr
 from .repo import repo
 from .exception import GgException
 from .ls import draw_tree_2
@@ -207,11 +206,6 @@ def css(*, _all: bool = False, _force: bool = False):
     """
     commit(_all=_all)
     submit_stack(_force=_force)
-
-
-@arguably.command()
-def gh():
-    create_pr()
 
 
 @arguably.command

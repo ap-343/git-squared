@@ -1,6 +1,7 @@
 from .branch import Branch, checked_out
 from .log import log
 from .repo import repo
+from .pr import create_pr
 
 
 def submit(_force: bool = False):
@@ -13,6 +14,7 @@ def submit(_force: bool = False):
         _type="success",
         _emoji=":ship:",
     )
+    create_pr()
 
 
 def checkout_and_submit(branch: Branch, _force: bool = False, **kwargs):

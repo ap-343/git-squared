@@ -3,6 +3,7 @@ from .log import log
 from github import BadCredentialsException
 from .repo import repo
 from github import Github
+import subprocess
 
 
 @contextmanager
@@ -24,5 +25,11 @@ Then try this operation again.
 def gh_repo():
     with github():
         r = repo()
-        g = Github()
+        token = subprocess.run(
+            ["gh", "auth", "token"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        ).stdout.strip()
+        g = Github(token)
         return g.get_repo(r.gh_path())
