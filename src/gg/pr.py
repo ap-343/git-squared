@@ -17,12 +17,17 @@ def pr_exists():
     return False
 
 
-def create_pr(_if_exists="noop"):
+def create_pr(_if_exists="noop", _if_noop="noop"):
     rr = gh_repo()
     b = Branch.active()
 
     if not b.parent():
         raise GgException("Can not create PR: No parent branch found for active branch")
+
+    if b.commits_ahead() < 1:
+        if _if_noop == "noop":
+            return
+        raise GgException("Can not create PR: No changes to commit")
 
     if pr_exists():
         if _if_exists == "noop":
@@ -32,7 +37,7 @@ def create_pr(_if_exists="noop"):
     try:
         return rr.create_pull(
             title=b.head().commit.message,
-            body="body",
+            body="",
             head=b.name,  # The branch with the changes
             base=b.parent().name,  # The branch you want to merge into
         )
