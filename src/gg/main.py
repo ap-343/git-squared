@@ -201,10 +201,22 @@ def css(*, _all: bool = False, _force: bool = False):
     Commit all changes and submit stack
 
     Args:
-        all: [-a]whether to add all files before committing
+        all: [-a] whether to add all files before committing
         force: [-f] whether to force submit
     """
     commit(_all=_all)
+    submit_stack(_force=_force)
+
+
+@arguably.command()
+def modify(*, _force: bool = False):
+    """
+    Add all files, commit all changes, and submit stack
+
+    Args:
+        force: [-f] whether to force submit
+    """
+    commit(_all=True)
     submit_stack(_force=_force)
 
 
@@ -263,6 +275,18 @@ def ss(*, _force: bool = False):
             Branch.from_head(repo().active_branch),
             lambda b: checkout_and_submit(b, _force=_force),
         )
+
+
+@arguably.command()
+def m(*, _force: bool = False):
+    """
+    Alias for `modify`
+
+    Args:
+        force: [-f] whether to force submit
+    """
+    commit(_all=True)
+    submit_stack(_force=_force)
 
 
 def main():
