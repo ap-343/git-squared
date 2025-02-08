@@ -33,8 +33,8 @@ def create_pr(_if_exists="noop"):
         return rr.create_pull(
             title=b.head().commit.message,
             body="body",
-            head={b.name},  # The branch with the changes
-            base={b.parent().name},  # The branch you want to merge into
+            head=b.name,  # The branch with the changes
+            base=b.parent().name,  # The branch you want to merge into
         )
     except GithubException as e:
         log(e.data.get("errors")[0].get("message"), _type="error")
