@@ -82,7 +82,8 @@ def go(name):
         name: the name of the branch to go to
     """
     with pad():
-        create_new_branch(name)
+        if not Branch(name).exists():
+            create_new_branch(name)
 
         if Branch(name).exists():
             Branch(name).checkout(_log=True)
