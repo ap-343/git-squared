@@ -14,7 +14,8 @@ def submit(_force: bool = False):
         _type="success",
         _emoji=":ship:",
     )
-    create_pr()
+    if Branch.active().name != "main":
+        create_pr()
 
 
 def checkout_and_submit(branch: Branch, _force: bool = False, **kwargs):
