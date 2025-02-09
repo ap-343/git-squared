@@ -5,6 +5,7 @@ from .exception import GgException
 from .log import log
 
 
+# test!
 def pr_exists():
     b = Branch.active()
     gh = Github()
