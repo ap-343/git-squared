@@ -30,4 +30,4 @@ class Github(Base):
                 stderr=subprocess.PIPE,
                 text=True,
             ).stdout.strip()
-            super().__init__(token, *args, **kwargs)
+        super().__init__(token, *args, **kwargs)
