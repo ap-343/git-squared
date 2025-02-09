@@ -35,7 +35,7 @@ def create_pr(_if_exists="noop", _if_noop="noop", _gh: Github = None):
         raise GgException("Can not create PR: PR already exists")
 
     try:
-        return gh.create_pull(
+        return gh.repo.create_pull(
             title=b.head().commit.message,
             body="",
             head=b.name,  # The branch with the changes
