@@ -1,8 +1,8 @@
 from contextlib import contextmanager
 from .log import log
-from github import BadCredentialsException
+from github import BadCredentialsException, Github as Base
 import subprocess
-from github import Github as Base
+from .repo import repo
 
 
 @contextmanager
@@ -31,3 +31,5 @@ class Github(Base):
                 text=True,
             ).stdout.strip()
         super().__init__(token, *args, **kwargs)
+
+        self.repo = self.get_repo(repo().gh_path())
