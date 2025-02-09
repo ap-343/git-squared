@@ -8,8 +8,7 @@ from .log import log
 def pr_exists():
     b = Branch.active()
     gh = Github()
-    print(dir(gh))
-    pull_requests = gh.get_pulls(state="open", base="main")
+    pull_requests = gh.repo.get_pulls(state="open", base="main")
 
     # Loop through the pull requests to check the head branch !!
     for pr in pull_requests:
