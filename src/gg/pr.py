@@ -10,7 +10,7 @@ def pr_exists():
     gh = Github()
     pull_requests = gh.get_pulls(state="open", base="main")
 
-    # Loop through the pull requests to check the head branch
+    # Loop through the pull requests to check the head branch !!
     for pr in pull_requests:
         if pr.head.ref == b.name:
             return True
