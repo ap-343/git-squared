@@ -6,6 +6,7 @@ from .log import log
 from .repo import repo
 
 
+# test!
 def pr_exists():
     r = repo()
     b = Branch.active()
