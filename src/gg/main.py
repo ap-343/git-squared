@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import arguably
 from .log import log, pad
-from .branch import Branch, create_new_branch
-from .repo import repo
+from .branch import Branch, create_new_branch, checked_out
+from .repo import repo, not_main
 from .exception import GgException
 from .ls import draw_tree_2
 from .tree import traverse
@@ -218,8 +218,28 @@ def update(*, _force: bool = False):
     Args:
         force: [-f] whether to force submit
     """
-    commit(_all=True)
-    submit_stack(_force=_force)
+    with pad():
+        commit(_all=True)
+        submit_stack(_force=_force)
+
+
+@arguably.command
+def move():
+    """
+    Move the current branch to track a different parent
+    """
+    with pad():
+        with not_main():
+            r = repo()
+            b = Branch.active()
+            new_parent = questionary.select(
+                f"Select a new parent for branch: {b.name}:",
+                choices=[x.name for x in r.get_branches()],
+            ).ask()
+            with checked_out(b) as (b, _):
+                b.set_upstream(new_parent)
+                _restack(b)
+                draw_tree_2(r, _print=True, _highlight=r.active_branch)
 
 
 @arguably.command

@@ -3,12 +3,14 @@ from github import GithubException
 from .branch import Branch
 from .exception import GgException
 from .log import log
+from .repo import repo
 
 
 def pr_exists():
+    r = repo()
     b = Branch.active()
     gh = Github()
-    pull_requests = gh.repo.get_pulls(state="open", base="main")
+    pull_requests = gh.repo.get_pulls(state="open", base=r.main().name)
 
     # Loop through the pull requests to check the head branch !!
     for pr in pull_requests:

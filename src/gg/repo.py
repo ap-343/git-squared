@@ -1,6 +1,7 @@
 from git import Repo as GitRepo
 from .exception import GgException
 from .branch import Branch
+from contextlib import contextmanager
 
 
 class Repo(GitRepo):
@@ -39,3 +40,12 @@ class Repo(GitRepo):
 
 def repo():
     return Repo(".")
+
+
+@contextmanager
+def not_main():
+    r = repo()
+    if Branch.active().name != r.main().name:
+        yield
+    else:
+        raise GgException("Cannot perform this operation on the main branch")

@@ -89,10 +89,13 @@ class Branch:
         )
         return f"[not bold][dim][[/dim]{msg}[dim]][/dim][/not bold]"
 
+    def set_upstream(self, name):
+        subprocess.run(["git", "branch", "-u", name])
+
     def create(self, _log=True):
         b = Branch.from_head(self.repo.create_head(self.name))
         with checked_out(b, _log=False) as (b, og):
-            subprocess.run(["git", "branch", "-u", og.name])
+            self.set_upstream(og.name)
         if _log:
             log(
                 f"Created branch: [bold]{self.name}[/bold] (tracking {b.tracking_branch().name})",

@@ -5,16 +5,17 @@ from .pr import create_pr
 
 
 def submit(_force: bool = False, **kwargs):
+    r = repo()
     if _force:
-        repo().git.push("origin", "HEAD", force=True)
+        r.git.push("origin", "HEAD", force=True)
     else:
-        repo().git.push("origin", "HEAD", force_with_lease=True)
+        r.git.push("origin", "HEAD", force_with_lease=True)
     log(
         f"Submitted [bold]{Branch.active().name}[bold]",
         _type="success",
         _emoji=":ship:",
     )
-    if Branch.active().name != "main":
+    if Branch.active().name != r.main().name:
         create_pr(**kwargs)
 
 
