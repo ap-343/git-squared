@@ -211,7 +211,7 @@ def css(*, _all: bool = False, _force: bool = False):
 
 
 @arguably.command()
-def modify(*, _force: bool = False):
+def update(*, _force: bool = False):
     """
     Add all files, commit all changes, and submit stack
 
@@ -280,9 +280,9 @@ def ss(*, _force: bool = False):
 
 
 @arguably.command()
-def m(*, _force: bool = False):
+def u(*, _force: bool = False):
     """
-    Alias for `modify`
+    Alias for `update`
 
     Args:
         force: [-f] whether to force submit
